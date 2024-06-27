@@ -1,0 +1,27 @@
+<div *ngIf="!choice()">
+  Pick a card:
+  <ul *ngIf="options()">
+    @for (opt of options(); track opt.id) {
+
+    <li (click)="onPick(opt)">{{ opt.name }}</li>
+
+    }
+  </ul>
+</div>
+
+<div *ngIf="choice()">
+  <!-- ooph, that makes signals kinda weak in my book (having to use $any in templates) -->
+  You chose <strong>{{ $any(choice()).name }}</strong>
+  <button (click)="undoChoice()">Undo</button>
+</div>
+
+<div *ngIf="unchosenOptions()?.length">
+  Provide this link to next player:
+  <code>
+    {{ newHref() }}
+  </code>
+</div>
+
+<div *ngIf="unchosenOptions()?.length === 0">
+  Choices are exhausted, no more picking.
+</div>
