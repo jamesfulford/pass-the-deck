@@ -14,15 +14,31 @@ export class NewPageComponent {
     const options: Option[] = [
       {
         id: '1',
-        name: 'A',
+        name: 'Angular',
       },
       {
         id: '2',
-        name: '2',
+        name: 'React',
       },
       {
         id: '3',
-        name: '3',
+        name: 'Vue',
+      },
+      {
+        id: '4',
+        name: 'Svelte',
+      },
+      {
+        id: '5',
+        name: 'Lit',
+      },
+      {
+        id: '6',
+        name: 'Stencil',
+      },
+      {
+        id: '7',
+        name: 'Polymer',
       },
     ];
     shuffleArray(options);

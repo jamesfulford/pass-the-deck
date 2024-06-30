@@ -1,27 +1,134 @@
-<div *ngIf="!choice()">
-  Pick a card:
-  <ul *ngIf="options()">
+<div *ngIf="!choice() && options()">
+  <div
+    style="
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+    "
+  >
+    <h1>Choose</h1>
+  </div>
+
+  <div
+    style="
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      justify-items: center;
+      grid-auto-flow: row;
+      column-gap: 5vw;
+      row-gap: 5vh;
+    "
+  >
     @for (opt of options(); track opt.id) {
 
-    <li (click)="onPick(opt)">{{ opt.name }}</li>
+    <div
+      (click)="onPick(opt)"
+      style="
+        border: 1px solid lightgray;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+      "
+    >
+      {{ opt.name }}
+    </div>
 
     }
-  </ul>
+  </div>
 </div>
 
 <div *ngIf="choice()">
-  <!-- ooph, that makes signals kinda weak in my book (having to use $any in templates) -->
-  You chose <strong>{{ $any(choice()).name }}</strong>
-  <button (click)="undoChoice()">Undo</button>
-</div>
+  <div
+    style="
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+    "
+  >
+    <h1>You chose:</h1>
+  </div>
 
-<div *ngIf="unchosenOptions()?.length">
-  Provide this link to next player:
-  <code>
-    {{ newHref() }}
-  </code>
-</div>
+  <div
+    style="
+      display: grid;
+      grid-template-columns: 1fr;
+      justify-items: center;
+      grid-auto-flow: row;
+      column-gap: 5vw;
+      row-gap: 5vh;
+      margin-bottom: 10vh;
+    "
+  >
+    <div
+      style="
+        border: 1px solid lightgray;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        width: 100%;
+        height: 100%;
+      "
+    >
+      <!-- ooph, that makes signals kinda weak in my book (having to use $any in templates) -->
+      {{ $any(choice()).name }}
+    </div>
+  </div>
 
-<div *ngIf="unchosenOptions()?.length === 0">
-  Choices are exhausted, no more picking.
+  <div
+    *ngIf="unchosenOptions()?.length"
+    style="
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    "
+  >
+    <button
+      [cdkCopyToClipboard]="nextPlayerMessage()"
+      style="font-size: 48px; margin-bottom: 5vh"
+      (click)="disableUndo()"
+    >
+      Copy message to next player
+    </button>
+
+    <div *ngIf="isDev" style="margin-bottom: 5vh">
+      <a [href]="newHref()">Dev: navigate</a>
+    </div>
+
+    <button
+      *ngIf="undoDisabled"
+      disabled
+      title="You can't undo if you've already copied the message to send to the next player."
+    >
+      Undo
+    </button>
+
+    <button
+      *ngIf="!undoDisabled"
+      title="Use this before copying the message to the next player if you misclicked."
+      (click)="undoChoice()"
+    >
+      Undo
+    </button>
+  </div>
+
+  <div
+    style="
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    "
+  ></div>
 </div>

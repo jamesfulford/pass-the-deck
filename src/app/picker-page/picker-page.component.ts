@@ -1,17 +1,30 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, isDevMode, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import type { Option } from '../option.types';
 import { shuffleArray } from '../shuffle';
+import { MatCardModule } from '@angular/material/card';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatButtonModule } from '@angular/material/button';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 
 @Component({
   selector: 'app-picker-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatGridListModule,
+    MatButtonModule,
+    ClipboardModule,
+  ],
   templateUrl: './picker-page.component.html',
   styleUrl: './picker-page.component.css',
 })
 export class PickerPageComponent {
+  isDev = isDevMode();
+  undoDisabled = false;
+
   options = signal<Option[] | undefined>(undefined);
   choiceID = signal<string | undefined>(undefined);
 
@@ -70,5 +83,13 @@ export class PickerPageComponent {
     return `${window.location.origin}/pick?options=${btoa(
       JSON.stringify(options)
     )}`;
+  }
+
+  nextPlayerMessage() {
+    return `Here are [your choices](${this.newHref()}).`;
+  }
+
+  disableUndo() {
+    this.undoDisabled = true;
   }
 }
