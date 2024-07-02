@@ -1,1 +1,34 @@
+<div>
+  <div *ngFor="let option of options; let i = index; trackBy: trackByFn">
+    <input
+      [(ngModel)]="options[i]"
+      (ngModelChange)="updateQueryParams()"
+      placeholder="What is this option called?"
+    />
+    <button (click)="removeOption(i)">x</button>
+  </div>
+  <button (click)="addOption()">+</button>
+</div>
+
+<button
+  (click)="
+    setOptions([
+      'Goose',
+      'Bobcat',
+      'Mountain Goat',
+      'Fox',
+      'Deer',
+      'Wolf',
+      'Elk',
+      'Racoon',
+      'Bear',
+      'Moose',
+      'Duck',
+      'Rabbit'
+    ])
+  "
+>
+  Hunting Game
+</button>
+<br />
 <a [href]="href()">Launch!</a>
