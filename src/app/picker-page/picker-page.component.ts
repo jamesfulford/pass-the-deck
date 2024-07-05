@@ -7,6 +7,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatButtonModule } from '@angular/material/button';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { Deck } from '../deck';
+import { Game } from '../game';
 
 @Component({
   selector: 'app-picker-page',
@@ -22,12 +23,22 @@ import { Deck } from '../deck';
   styleUrl: './picker-page.component.css',
 })
 export class PickerPageComponent {
-  // isDev = isDevMode();
-  isDev = true;
   undoDisabled = false;
+  showSplashPage = true;
+  goBeyondSplashPage() {
+    this.showSplashPage = false;
+  }
 
   deck = signal<Deck | undefined>(undefined);
   choiceIndex = signal<number | undefined>(undefined);
+
+  game = signal<Game | undefined>(undefined);
+
+  currentPlayerID = computed(() => {
+    const game = this.game();
+    if (!game) return;
+    return game.currentPlayerID();
+  });
 
   choice = computed(() => {
     const choiceIndex = this.choiceIndex();
@@ -48,11 +59,21 @@ export class PickerPageComponent {
     if (deck === undefined) return;
     return deck.choose(choiceIndex);
   });
+  nextGame = computed(() => {
+    const game = this.game();
+    if (game === undefined) return;
+    return game.next();
+  });
 
   nextHref = computed(() => {
     const nextDeck = this.nextDeck();
     if (nextDeck === undefined) return;
-    return `${window.location.origin}/pick?deck=${btoa(nextDeck.serialize())}`;
+    const nextGame = this.nextGame();
+    if (nextGame === undefined) return;
+
+    return `${window.location.origin}/pick?deck=${btoa(
+      nextDeck.serialize()
+    )}&game=${btoa(nextGame.serialize())}`;
   });
 
   nextPlayerMessage = computed(() => {
@@ -76,6 +97,18 @@ export class PickerPageComponent {
       this.choiceIndex.set(
         choiceIndexString ? Number(choiceIndexString) : undefined
       );
+
+      if (this.choice() && this.showSplashPage) {
+        // choice is locked in. Disable changing
+        this.disableUndo();
+      }
+    });
+
+    this.route.queryParamMap.subscribe((params) => {
+      const gameString = params.get('game');
+      if (!gameString) return;
+      const game = Game.parse(atob(gameString));
+      this.game.set(game);
     });
   }
 

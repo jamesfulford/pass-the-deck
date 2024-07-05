@@ -1,130 +1,135 @@
-<div *ngIf="!choice() && options()">
-  <div
-    style="
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 60px;
-    "
-  >
-    <h1>Choose</h1>
-  </div>
+@if (!game() || !deck()) {
+<code>Error: missing valid game or deck.</code>
+} @else { @if (showSplashPage) {
+<h1>Hello, {{ currentPlayerID() }}</h1>
+@if (choice()) {
+<button (click)="goBeyondSplashPage()">Show me what I chose</button>
+} @else {
 
-  <div
-    style="
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      justify-items: center;
-      grid-auto-flow: row;
-      column-gap: 5vw;
-      row-gap: 5vh;
-    "
-  >
-    <div
-      *ngFor="let opt of options(); let i = index"
-      (click)="onPick(i)"
-      style="
-        border: 1px solid lightgray;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 48px;
-        cursor: pointer;
-        width: 100%;
-        padding: 30px;
-      "
-    >
-      {{ opt }}
-    </div>
-  </div>
+<button (click)="goBeyondSplashPage()">Show me my options</button>
+}
+<br />
+<br />
+<br />
+<br />
+<p style="color: #bbbbbb">Not you? Send this link to the right player.</p>
+} @else { @if (choice()) {
+<div
+  style="
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+  "
+>
+  <h1>You chose:</h1>
 </div>
 
-<div *ngIf="choice()">
+<div
+  style="
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    grid-auto-flow: row;
+    column-gap: 5vw;
+    row-gap: 5vh;
+    margin-bottom: 10vh;
+  "
+>
   <div
     style="
-      width: 100%;
+      border: 1px solid lightgray;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 60px;
-    "
-  >
-    <h1>You chose:</h1>
-  </div>
-
-  <div
-    style="
-      display: grid;
-      grid-template-columns: 1fr;
-      justify-items: center;
-      grid-auto-flow: row;
-      column-gap: 5vw;
-      row-gap: 5vh;
-      margin-bottom: 10vh;
-    "
-  >
-    <div
-      style="
-        border: 1px solid lightgray;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 48px;
-        width: 100%;
-        height: 100%;
-      "
-    >
-      {{ choice() }}
-    </div>
-  </div>
-
-  <div
-    *ngIf="nextDeck()"
-    style="
+      font-size: 48px;
       width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
+      height: 100%;
     "
   >
-    <button
-      [cdkCopyToClipboard]="nextPlayerMessage() || ''"
-      style="font-size: 48px; margin-bottom: 5vh"
-      (click)="disableUndo()"
-    >
-      Copy message to next player
-    </button>
-
-    <div *ngIf="isDev" style="margin-bottom: 5vh">
-      <a [href]="nextHref()">Dev: navigate</a>
-    </div>
-
-    <button
-      *ngIf="undoDisabled"
-      disabled
-      title="You can't undo if you've already copied the message to send to the next player."
-    >
-      Undo
-    </button>
-
-    <button
-      *ngIf="!undoDisabled"
-      title="Use this before copying the message to the next player if you misclicked."
-      (click)="undoChoice()"
-    >
-      Undo
-    </button>
+    {{ choice() }}
   </div>
-
-  <!-- <div
-    style="
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-    "
-  ></div> -->
 </div>
+@if (nextHref()) {
+<div
+  style="
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  "
+>
+  <button
+    [cdkCopyToClipboard]="nextHref() || ''"
+    style="font-size: 48px; margin-bottom: 5vh"
+    (click)="disableUndo()"
+  >
+    Copy link to next player
+  </button>
+
+  <span style="color: #bbbbbb"
+    >Or,
+    <a [href]="nextHref() || ''" style="color: inherit"
+      >go to next player</a
+    ></span
+  >
+</div>
+
+@if(undoDisabled) {
+<button
+  disabled
+  title="You can't undo if you've already copied the message to send to the next player."
+>
+  Undo choice
+</button>
+} @else {
+<button
+  *ngIf="!undoDisabled"
+  title="Use this before copying the message to the next player if you misclicked."
+  (click)="undoChoice()"
+>
+  Undo choice
+</button>
+} } } @if (!choice()) {
+<div
+  style="
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+  "
+>
+  <h1>Choose</h1>
+</div>
+
+<div
+  style="
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    justify-items: center;
+    grid-auto-flow: row;
+    column-gap: 5vw;
+    row-gap: 5vh;
+  "
+>
+  <div
+    *ngFor="let opt of options(); let i = index"
+    (click)="onPick(i)"
+    style="
+      border: 1px solid lightgray;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      cursor: pointer;
+      width: 100%;
+      padding: 30px;
+    "
+  >
+    {{ opt }}
+  </div>
+</div>
+} } }

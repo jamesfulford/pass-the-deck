@@ -1,24 +1,42 @@
 <div>
+  <h1>Cards</h1>
   <div *ngFor="let option of options; let i = index; trackBy: trackByFn">
     <input
       [(ngModel)]="options[i]"
-      (ngModelChange)="updateQueryParams()"
+      (ngModelChange)="onOptionsUpdated()"
       placeholder="What is this option called?"
     />
     <button (click)="removeOption(i)">x</button>
   </div>
   <button (click)="addOption()">+</button>
+  <br />
+  <label>
+    Each player chooses from:
+    <input
+      type="number"
+      min="1"
+      max="5"
+      [(ngModel)]="choicesPerChoosing"
+      (ngModelChange)="onChoicesPerChoosingChange()"
+    />
+  </label>
 </div>
 <br />
-<label>
-  Choices:
-  <input
-    type="number"
-    min="1"
-    max="5"
-    [(ngModel)]="choicesPerChoosing"
-    (ngModelChange)="onChoicesPerChoosingChange()"
-  />
-</label>
+<div>
+  <h1>Players</h1>
+  <div *ngFor="let player of players; let i = index; trackBy: trackByFn">
+    <input
+      [(ngModel)]="players[i]"
+      (ngModelChange)="onPlayersUpdated()"
+      placeholder="Player name"
+    />
+    <button (click)="removePlayer(i)">x</button>
+  </div>
+  <button (click)="addPlayer()">+</button>
+</div>
 <br />
-<a [href]="href()">Launch!</a>
+<div *ngIf="!enoughOptionsForPlayersAndChoosing()">
+  Not enough options! Either add more options, reduce player count, or reduce
+  how many options each player will have.
+</div>
+<a *ngIf="enoughOptionsForPlayersAndChoosing()" [href]="href()">Launch!</a>

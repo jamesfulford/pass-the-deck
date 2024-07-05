@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Deck } from '../deck';
+import { Game } from '../game';
 
 const defaultOptions = [
   'Goose',
@@ -18,7 +19,7 @@ const defaultOptions = [
   'Moose',
   'Duck',
   // 'Rabbit', // TODO: include if 3+ players
-];
+].sort();
 
 @Component({
   selector: 'app-new-page',
@@ -30,18 +31,26 @@ const defaultOptions = [
 export class NewPageComponent {
   constructor(private route: ActivatedRoute, private router: Router) {}
 
+  // principle: game setup settings go in the URL so can share with other groups
+  // but group-specific settings go in localStorage for faster re-play
+
   ngOnInit() {
+    // options: what cards are we playing with?
+    // game setup -> lives in URL
     this.route.queryParamMap.subscribe((params) => {
       const optionsString = params.get('options');
       if (optionsString === null) {
         this.options = [...defaultOptions];
-        this.updateQueryParams();
       } else {
         const options = optionsString ? optionsString.split(',') : [];
         this.options = options;
       }
+      this.onOptionsUpdated();
     });
 
+    // choices: how many cards do you get to see when it is your turn?
+    // higher is even better for first picker and worse for last picker.
+    // game setup -> lives in URL
     this.route.queryParamMap.subscribe((params) => {
       const choicesString = params.get('choices');
 
@@ -62,9 +71,9 @@ export class NewPageComponent {
       this.choicesPerChoosing = rawChoicesPerChoosing;
       this.onChoicesPerChoosingChange();
     });
-  }
 
-  options: string[] = [];
+    this.loadPlayers();
+  }
 
   defaultChoicesPerChoosing: number = 2;
   choicesPerChoosing: number = 2;
@@ -81,18 +90,20 @@ export class NewPageComponent {
     });
   }
 
+  options: string[] = [];
+
   addOption() {
     this.options.push('');
-    this.updateQueryParams();
+    this.onOptionsUpdated();
   }
   removeOption(i: number) {
     this.options.splice(i, 1);
-    this.updateQueryParams();
+    this.onOptionsUpdated();
   }
   trackByFn(index: number, _item: string): number {
     return index;
   }
-  updateQueryParams() {
+  onOptionsUpdated() {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
@@ -101,9 +112,12 @@ export class NewPageComponent {
       queryParamsHandling: 'merge',
     });
   }
-  setOptions(options: string[]) {
-    this.options = options;
-    this.updateQueryParams();
+
+  enoughOptionsForPlayersAndChoosing() {
+    // # of cards needed are: initial draw size + players-1 (for replenishing)
+    return (
+      this.options.length >= this.players.length + this.choicesPerChoosing - 1
+    );
   }
 
   public href() {
@@ -111,6 +125,33 @@ export class NewPageComponent {
     shuffleArray(options);
     const deck = new Deck(options, { show: this.choicesPerChoosing });
 
-    return `/pick?deck=${btoa(deck.serialize())}`;
+    const game = new Game('Hunting Game', this.players, 0);
+
+    return `/pick?deck=${btoa(deck.serialize())}&game=${btoa(
+      game.serialize()
+    )}`;
+  }
+
+  players: string[] = [];
+  addPlayer() {
+    this.players.push(`Player ${this.players.length}`);
+    this.onPlayersUpdated();
+  }
+  removePlayer(i: number) {
+    this.players.splice(i, 1);
+    this.onPlayersUpdated();
+  }
+  onPlayersUpdated() {
+    const playersString = JSON.stringify(this.players);
+    localStorage.setItem('players', playersString);
+  }
+  loadPlayers() {
+    const playersString = localStorage.getItem('players');
+    if (playersString) {
+      this.players = JSON.parse(playersString);
+    } else {
+      this.addPlayer();
+      this.addPlayer();
+    }
   }
 }
