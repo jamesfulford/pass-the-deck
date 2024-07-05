@@ -37,6 +37,8 @@ export class Deck {
 
     // deck is depleted
     if (newOptions.length === 0) return;
+    // deck does not have enough options to show
+    if (newOptions.length < this.show) return;
 
     // shuffle all options that will be visible in new deck
     shuffleArray(newOptions, this.show);
