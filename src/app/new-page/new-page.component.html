@@ -9,26 +9,16 @@
   </div>
   <button (click)="addOption()">+</button>
 </div>
-
-<button
-  (click)="
-    setOptions([
-      'Goose',
-      'Bobcat',
-      'Mountain Goat',
-      'Fox',
-      'Deer',
-      'Wolf',
-      'Elk',
-      'Racoon',
-      'Bear',
-      'Moose',
-      'Duck',
-      'Rabbit'
-    ])
-  "
->
-  Hunting Game
-</button>
+<br />
+<label>
+  Choices:
+  <input
+    type="number"
+    min="1"
+    max="5"
+    [(ngModel)]="choicesPerChoosing"
+    (ngModelChange)="onChoicesPerChoosingChange()"
+  />
+</label>
 <br />
 <a [href]="href()">Launch!</a>
