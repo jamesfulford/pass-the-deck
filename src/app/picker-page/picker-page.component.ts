@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, isDevMode, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import type { Option } from '../option.types';
 import { shuffleArray } from '../shuffle';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatButtonModule } from '@angular/material/button';
 import { ClipboardModule } from '@angular/cdk/clipboard';
+import { Deck } from '../deck';
 
 @Component({
   selector: 'app-picker-page',
@@ -22,46 +22,68 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
   styleUrl: './picker-page.component.css',
 })
 export class PickerPageComponent {
-  isDev = isDevMode();
+  // isDev = isDevMode();
+  isDev = true;
   undoDisabled = false;
 
-  options = signal<Option[] | undefined>(undefined);
-  choiceID = signal<string | undefined>(undefined);
+  deck = signal<Deck | undefined>(undefined);
+  choiceIndex = signal<number | undefined>(undefined);
 
   choice = computed(() => {
-    const choiceID = this.choiceID();
-    if (!choiceID) return;
-    return this.options()?.find((o) => o.id === choiceID);
+    const choiceIndex = this.choiceIndex();
+    if (choiceIndex === undefined) return;
+    return this.deck()?.getVisibleOptions()[choiceIndex];
   });
 
-  unchosenOptions = computed(() => {
-    const choiceID = this.choiceID();
-    const options = this.options();
-    if (!choiceID || !options) return;
-    return options.filter((o) => o.id !== choiceID);
+  options = computed(() => {
+    const deck = this.deck();
+    if (deck === undefined) return;
+    return deck.getVisibleOptions();
+  });
+
+  nextDeck = computed(() => {
+    const choiceIndex = this.choiceIndex();
+    if (choiceIndex === undefined) return;
+    const deck = this.deck();
+    if (deck === undefined) return;
+    return deck.choose(choiceIndex);
+  });
+
+  nextHref = computed(() => {
+    const nextDeck = this.nextDeck();
+    if (nextDeck === undefined) return;
+    return `${window.location.origin}/pick?deck=${btoa(nextDeck.serialize())}`;
+  });
+
+  nextPlayerMessage = computed(() => {
+    const nextHref = this.nextHref();
+    if (nextHref === undefined) return;
+    return `Here are [your choices](${nextHref}).`;
   });
 
   constructor(private route: ActivatedRoute, private router: Router) {}
+
   ngOnInit() {
     this.route.queryParamMap.subscribe((params) => {
-      const optionsString = params.get('options');
-      if (!optionsString) return;
-      const options = JSON.parse(atob(optionsString)) as Option[];
-
-      this.options.set(options);
+      const deckString = params.get('deck');
+      if (!deckString) return;
+      const deck = Deck.parse(atob(deckString));
+      this.deck.set(deck);
     });
 
     this.route.queryParamMap.subscribe((params) => {
-      const choiceID = params.get('choice');
-      this.choiceID.set(choiceID ? atob(choiceID) : undefined);
+      const choiceIndexString = params.get('choice');
+      this.choiceIndex.set(
+        choiceIndexString ? Number(choiceIndexString) : undefined
+      );
     });
   }
 
-  onPick(opt: Option) {
+  onPick(optionIndex: number) {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
-        choice: btoa(opt.id),
+        choice: String(optionIndex),
       },
       queryParamsHandling: 'merge',
     });
@@ -75,18 +97,6 @@ export class PickerPageComponent {
       },
       queryParamsHandling: 'merge',
     });
-  }
-
-  newHref() {
-    const options = this.unchosenOptions() as Option[];
-    shuffleArray(options);
-    return `${window.location.origin}/pick?options=${btoa(
-      JSON.stringify(options)
-    )}`;
-  }
-
-  nextPlayerMessage() {
-    return `Here are [your choices](${this.newHref()}).`;
   }
 
   disableUndo() {

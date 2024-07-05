@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-import type { Option } from '../option.types';
 import { shuffleArray } from '../shuffle';
-import { v4 } from 'uuid';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Deck } from '../deck';
 
 @Component({
   selector: 'app-new-page',
@@ -52,8 +51,10 @@ export class NewPageComponent {
   }
 
   public href() {
-    const options: Option[] = this.options.map((s) => ({ id: v4(), name: s }));
+    const options = [...this.options];
     shuffleArray(options);
-    return `/pick?options=${btoa(JSON.stringify(options))}`;
+    const deck = new Deck(options, { show: 2 });
+
+    return `/pick?deck=${btoa(deck.serialize())}`;
   }
 }
