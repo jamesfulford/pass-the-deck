@@ -40,12 +40,17 @@ export class Deck {
     // deck does not have enough options to show
     if (newOptions.length < this.show) return;
 
-    // shuffle all options that will be visible in new deck
-    shuffleArray(newOptions, this.show);
+    const visibleDeck = newOptions.slice(0, this.show);
+    const invisibleDeck = newOptions.slice(this.show);
 
-    // TODO: shuffle all options not visible? Decide.
+    // shuffle all options that will be visible in the new deck
+    shuffleArray(visibleDeck);
 
-    return new Deck(newOptions, { show: this.show });
+    // shuffle non-visible deck so who sees what isn't predetermined at start of game,
+    // so if state is introspected it isn't too much trouble.
+    shuffleArray(invisibleDeck);
+
+    return new Deck([...visibleDeck, ...invisibleDeck], { show: this.show });
   }
 
   serialize(): string {
