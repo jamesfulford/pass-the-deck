@@ -52,6 +52,12 @@ export class PickerPageComponent {
     return deck.getVisibleOptions();
   });
 
+  isAssigned = computed(() => {
+    const deck = this.deck();
+    if (deck === undefined) return;
+    return deck.getVisibleOptions().length === 1;
+  });
+
   nextDeck = computed(() => {
     const choiceIndex = this.choiceIndex();
     if (choiceIndex === undefined) return;
@@ -90,15 +96,26 @@ export class PickerPageComponent {
       if (!deckString) return;
       const deck = Deck.parse(atob(deckString));
       this.deck.set(deck);
+
+      // if there is only 1 option, you were assigned a card
+      // so just pick it automatically.
+      if (this.isAssigned()) {
+        this.onPick(0);
+      }
     });
 
     this.route.queryParamMap.subscribe((params) => {
       const choiceIndexString = params.get('choice');
-      this.choiceIndex.set(
-        choiceIndexString ? Number(choiceIndexString) : undefined
-      );
+      if (!choiceIndexString) {
+        if (this.choice() !== undefined) {
+          // we had chosen but now we want to change (the 'undo' case)
+          this.choiceIndex.set(undefined);
+        }
+        return;
+      }
+      this.choiceIndex.set(Number.parseInt(choiceIndexString));
 
-      if (this.choice() && this.showSplashPage) {
+      if (this.showSplashPage) {
         // choice is locked in. Disable changing
         this.disableUndo();
       }
