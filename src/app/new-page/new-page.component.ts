@@ -5,6 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Deck } from '../deck';
 import { Game } from '../game';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
 
 const defaultOptions = [
   'Goose',
@@ -24,7 +28,14 @@ const defaultOptions = [
 @Component({
   selector: 'app-new-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatInputModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatButtonModule,
+  ],
   templateUrl: './new-page.component.html',
   styleUrl: './new-page.component.css',
 })
@@ -144,6 +155,10 @@ export class NewPageComponent {
   onPlayersUpdated() {
     const playersString = JSON.stringify(this.players);
     localStorage.setItem('players', playersString);
+  }
+  shufflePlayers() {
+    shuffleArray(this.players);
+    this.onPlayersUpdated();
   }
   loadPlayers() {
     const playersString = localStorage.getItem('players');

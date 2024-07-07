@@ -1,42 +1,99 @@
+<h1>New Game</h1>
 <div>
-  <h1>Cards</h1>
-  <div *ngFor="let option of options; let i = index; trackBy: trackByFn">
-    <input
-      [(ngModel)]="options[i]"
-      (ngModelChange)="onOptionsUpdated()"
-      placeholder="What is this option called?"
-    />
-    <button (click)="removeOption(i)">x</button>
+  <div style="display: flex">
+    <h2>Cards</h2>
+    <button
+      mat-fab
+      matTooltip="Add card"
+      (click)="addOption()"
+      style="margin-left: 10px"
+    >
+      <mat-icon>add</mat-icon>
+    </button>
   </div>
-  <button (click)="addOption()">+</button>
-  <br />
-  <label>
-    Each player chooses from:
+  <div>
+    <mat-form-field
+      *ngFor="let option of options; let i = index; trackBy: trackByFn"
+      style="margin-right: 6px"
+    >
+      <input
+        matInput
+        [(ngModel)]="options[i]"
+        (ngModelChange)="onOptionsUpdated()"
+      />
+      <mat-icon (click)="removeOption(i)" matTooltip="Delete" matSuffix
+        >delete</mat-icon
+      >
+    </mat-form-field>
+  </div>
+  <h3>Settings</h3>
+  <mat-form-field>
+    <mat-label>Choices</mat-label>
     <input
       type="number"
+      matInput
       min="1"
       max="5"
       [(ngModel)]="choicesPerChoosing"
       (ngModelChange)="onChoicesPerChoosingChange()"
     />
-  </label>
+    <mat-icon
+      matTooltip="Number of cards each player gets to choose from."
+      matSuffix
+      >info</mat-icon
+    >
+  </mat-form-field>
 </div>
-<br />
 <div>
-  <h1>Players</h1>
-  <div *ngFor="let player of players; let i = index; trackBy: trackByFn">
-    <input
-      [(ngModel)]="players[i]"
-      (ngModelChange)="onPlayersUpdated()"
-      placeholder="Player name"
-    />
-    <button (click)="removePlayer(i)">x</button>
+  <div style="display: flex">
+    <h2>Players</h2>
+    <button
+      mat-fab
+      matTooltip="Add player"
+      (click)="addPlayer()"
+      style="margin-left: 10px"
+    >
+      <mat-icon>add</mat-icon>
+    </button>
+    <button
+      mat-fab
+      matTooltip="Shuffle players"
+      (click)="shufflePlayers()"
+      style="margin-left: 10px"
+    >
+      <mat-icon>shuffle</mat-icon>
+    </button>
   </div>
-  <button (click)="addPlayer()">+</button>
+
+  <div>
+    <mat-form-field
+      *ngFor="let player of players; let i = index; trackBy: trackByFn"
+      style="margin-right: 6px"
+    >
+      <input
+        matInput
+        [(ngModel)]="players[i]"
+        (ngModelChange)="onPlayersUpdated()"
+        placeholder="Player name"
+      />
+      <mat-icon (click)="removePlayer(i)" matTooltip="Delete" matSuffix
+        >delete</mat-icon
+      >
+    </mat-form-field>
+  </div>
 </div>
-<br />
 <div *ngIf="!enoughOptionsForPlayersAndChoosing()">
-  Not enough options! Either add more options, reduce player count, or reduce
-  how many options each player will have.
+  Not enough cards! Either add more cards, reduce player count, or reduce how
+  many choices each player will have.
 </div>
-<a *ngIf="enoughOptionsForPlayersAndChoosing()" [href]="href()">Launch!</a>
+
+<div style="font-size: 60px">
+  <a
+    *ngIf="enoughOptionsForPlayersAndChoosing()"
+    [href]="href()"
+    mat-fab
+    extended
+    style="background-color: #00bbbb"
+    ><mat-icon>rocket</mat-icon>Launch!</a
+  >
+</div>

@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, isDevMode, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { shuffleArray } from '../shuffle';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatButtonModule } from '@angular/material/button';
 import { ClipboardModule } from '@angular/cdk/clipboard';
+
 import { Deck } from '../deck';
 import { Game } from '../game';
+import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-picker-page',
@@ -18,6 +19,7 @@ import { Game } from '../game';
     MatGridListModule,
     MatButtonModule,
     ClipboardModule,
+    MatTooltip,
   ],
   templateUrl: './picker-page.component.html',
   styleUrl: './picker-page.component.css',
@@ -70,6 +72,11 @@ export class PickerPageComponent {
     if (game === undefined) return;
     return game.next();
   });
+  nextPlayerID = computed(() => {
+    const nextGame = this.nextGame();
+    if (!nextGame) return;
+    return nextGame.currentPlayerID();
+  });
 
   nextHref = computed(() => {
     const nextDeck = this.nextDeck();
@@ -80,12 +87,6 @@ export class PickerPageComponent {
     return `${window.location.origin}/pick?deck=${btoa(
       nextDeck.serialize()
     )}&game=${btoa(nextGame.serialize())}`;
-  });
-
-  nextPlayerMessage = computed(() => {
-    const nextHref = this.nextHref();
-    if (nextHref === undefined) return;
-    return `Here are [your choices](${nextHref}).`;
   });
 
   constructor(private route: ActivatedRoute, private router: Router) {}
