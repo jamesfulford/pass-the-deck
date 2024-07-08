@@ -145,7 +145,7 @@ export class NewPageComponent {
 
   players: string[] = [];
   addPlayer() {
-    this.players.push(`Player ${this.players.length}`);
+    this.players.push(`Player ${this.players.length + 1}`);
     this.onPlayersUpdated();
   }
   removePlayer(i: number) {
